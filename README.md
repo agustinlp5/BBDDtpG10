@@ -109,7 +109,15 @@ Entrega:
 - Ranking de médicos que hicieron más operaciones para darle un bonus (parece fácil de hacer con group by).
 - De cada paciente se quiere saber el primer y útlimo turno.
 - Ranking de quienes fueron los clientes que más costos tuvieron en sus consultas.
-- Cuantos dias pasaron desde la ultima consulta del cliente.
+- Cuantos dias pasaron desde la ultima consulta del cliente. X
+
+Ya tenía hecho esto:
+
+- Para cada turno que tuvo un paciente, mostrar la fecha de su turno anterior y los días que hubo de diferencia.
+- Ranking de médicos más solicitados de cada especialidad, según la cantidad de turnos atendidos.
+- Ranking de médicos que recetaron la mayor cantidad de medicamentos con efectos secundarios de gravedad alta.
+
+Podría agregar el de primer y último turno de cada paciente.
 
 ### Posibles TTL:
 

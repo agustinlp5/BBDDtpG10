@@ -95,14 +95,17 @@ Entrega:
 
 ### Restricciones (pendientes):
 
-- No puede utilizarse un consultorio para dos turnos al mismo tiempo (se asume que cada turno dura 30 minutos).
-- La fecha de nacimiento de un paciente no puede superar la fecha actual.
-- Los médicos tienen una fecha de nacimiento tal que tienen más de 18 años
-- Un paciente o un médico no pueden tener un turno antes de nacer.
-- La supervisión tiene forma de arbol.
-- Todas las operaciones deben tener un único "cirujano principal".
-- Los turnos y operaciones deben ocurrir después que el turno que lo solicitó.
-- Los sueldos de los médicos y los costos de la consulta no pueden ser negativos
+- No puede utilizarse un consultorio para dos turnos al mismo tiempo (se asume que cada turno dura 30 minutos). X
+- La fecha de nacimiento de un paciente no puede superar la fecha actual. X  
+- Los médicos tienen una fecha de nacimiento tal que tienen más de 18 años. X
+- Un paciente o un médico no pueden tener un turno antes de nacer. X
+- Todas las operaciones deben tener un único "cirujano principal". X
+- Los turnos y operaciones deben ocurrir después que el turno que lo solicitó. X
+- Los sueldos de los médicos y los costos de la consulta no pueden ser negativos. X
+- Un medico no puede supervisarse a si mismo. X
+- La supervisión tiene forma de arbol?. 
+- Si un turno es programado, su fecha es posterior a la actual, si es cancelado nada, si es realizado debe ser previa a la actual. X
+- Un medico solo tiene un rol en cada operación. (ya esta cumplida al no hacer que rol forme parte de la clave de medico_operacion). X
 
 ### Posibles funciones ventana
 

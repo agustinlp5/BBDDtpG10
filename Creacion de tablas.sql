@@ -1,29 +1,37 @@
+DROP TABLE IF EXISTS persona CASCADE;
 DROP TABLE IF EXISTS medico CASCADE;
 DROP TABLE IF EXISTS obra_social CASCADE;
 DROP TABLE IF EXISTS paciente CASCADE;
+DROP TABLE IF EXISTS riesgo CASCADE;
+DROP TABLE IF EXISTS paciente_riesgo CASCADE;
 DROP TABLE IF EXISTS consultorio CASCADE;
 DROP TABLE IF EXISTS turno CASCADE;
 DROP TABLE IF EXISTS operacion CASCADE;
 DROP TABLE IF EXISTS estudio CASCADE;
 DROP TABLE IF EXISTS medicamento CASCADE;
 DROP TABLE IF EXISTS efecto_secundario CASCADE;
+DROP TABLE IF EXISTS turno_medicamento CASCADE;
 DROP TABLE IF EXISTS medicamento_efecto CASCADE;
 DROP TABLE IF EXISTS medico_operacion CASCADE;
-DROP TABLE IF EXISTS turno_medicamento CASCADE;
 
-CREATE TABLE medico (
- 	legajo VARCHAR(20) PRIMARY KEY,
- 	nombre VARCHAR(100) NOT NULL,
+
+CREATE TABLE persona (
+	cuil CHAR(11) PRIMARY KEY,
+	nombre VARCHAR(100) NOT NULL,
 	apellido VARCHAR(100) NOT NULL,
-	dni CHAR(8) NOT NULL,
 	mail VARCHAR(100),
 	telefono VARCHAR(20),
-	salario DECIMAL(10,2) CHECK (salario >= 0), --usamos decimal en vez de float porque no queremos errores, como mucho llega a 8 cifras y 2 decimales (10 millones)
-	fecha_nacimiento DATE CHECK (fecha_nacimiento <= CURRENT_DATE - INTERVAL '18 years'), --cuidado con el check, solo se ejecuta en la creacion
+	fecha_nacimiento DATE CHECK (fecha_nacimiento <= CURRENT_DATE)
+	);
+
+CREATE TABLE medico (
+	cuil CHAR(11) PRIMARY KEY,
+	salario DECIMAL(10,2) CHECK (salario >= 0),
+	cuil_supervisor CHAR(11),
 	especialidad VARCHAR(100) NOT NULL,
-	legajo_supervisor VARCHAR(20),
-	FOREIGN KEY (legajo_supervisor) REFERENCES medico(legajo),
-	CHECK (legajo <> legajo_supervisor)
+	FOREIGN KEY (cuil) REFERENCES persona(cuil),
+	FOREIGN KEY (cuil_supervisor) REFERENCES medico(cuil),
+	CHECK (cuil <> cuil_supervisor)
 );
 
 CREATE TABLE obra_social (
@@ -32,23 +40,30 @@ CREATE TABLE obra_social (
 );
 
 CREATE TABLE paciente(
-	id_paciente SERIAL PRIMARY KEY,
- 	nombre VARCHAR(100) NOT NULL,
-	apellido VARCHAR(100) NOT NULL,
-	dni CHAR(8) NOT NULL,
-	mail VARCHAR(100),
-	telefono VARCHAR(20),
-	fecha_nacimiento DATE CHECK (fecha_nacimiento <= CURRENT_DATE),
+	cuil CHAR(11) PRIMARY KEY,
 	genero VARCHAR(10) CHECK (genero in('hombre','mujer')),
 	grupo_sanguineo VARCHAR(10) CHECK (grupo_sanguineo in('A+','A-','B+','B-','AB+','AB-','O+','O-')),
-	riesgo VARCHAR(30) CHECK(riesgo in('diabetes','obesidad','embarazo','enfermedad cardiaca','enfermedad respiratoria','inmunocomprometido','mayor de edad')),
 	id_obra INTEGER,
+	FOREIGN KEY (cuil) REFERENCES persona(cuil),
 	FOREIGN KEY (id_obra) REFERENCES obra_social(id_obra)
+);
+
+CREATE TABLE riesgo(
+	id_riesgo SERIAL PRIMARY KEY,
+	nombre_riesgo VARCHAR(30) CHECK(nombre_riesgo in('diabetes','obesidad','embarazo','enfermedad cardiaca','enfermedad respiratoria','inmunocomprometido','mayor de edad'))
+);
+
+CREATE TABLE paciente_riesgo(
+	cuil_paciente CHAR(11),
+	id_riesgo INTEGER,
+	FOREIGN KEY (cuil_paciente) REFERENCES paciente(cuil),
+	FOREIGN KEY (id_riesgo) REFERENCES riesgo(id_riesgo),
+	PRIMARY KEY(cuil_paciente,id_riesgo)
 );
 
 CREATE TABLE consultorio (
 	numero_consultorio INTEGER PRIMARY KEY,
-	piso INT,
+	piso INTEGER,
 	ala VARCHAR(5) CHECK (ala IN ('este','centro','oeste'))
 );
 
@@ -56,14 +71,14 @@ CREATE TABLE turno (
 	id_turno SERIAL PRIMARY KEY,
 	diagnostico VARCHAR (30),
 	costo DECIMAL(8,2)CHECK (costo >= 0),
-	fecha DATE NOT NULL,
-	hora TIME NOT NULL,
+	fecha_turno DATE NOT NULL,
+	hora_turno TIME NOT NULL,
 	estado VARCHAR(20) CHECK (estado in ('programado', 'realizado', 'cancelado')),
-	id_paciente INTEGER NOT NULL,
-	legajo VARCHAR(20) NOT NULL,
+	cuil_paciente CHAR(11) NOT NULL,
+	cuil_medico CHAR(11) NOT NULL,
 	numero_consultorio INTEGER NOT NULL,
-	FOREIGN KEY (id_paciente) REFERENCES paciente(id_paciente),
-	FOREIGN KEY (legajo) REFERENCES medico(legajo),
+	FOREIGN KEY (cuil_paciente) REFERENCES paciente(cuil),
+	FOREIGN KEY (cuil_medico) REFERENCES medico(cuil),
 	FOREIGN KEY (numero_consultorio) REFERENCES consultorio(numero_consultorio)
 );
 
@@ -71,24 +86,22 @@ CREATE TABLE operacion(
 	id_operacion SERIAL PRIMARY KEY,
 	nombre_operacion VARCHAR(100) NOT NULL,
 	complejidad VARCHAR(10) CHECK (complejidad IN ('alta','media','baja')),
-	fecha DATE NOT NULL,
-	id_turno INTEGER NOT NULL,
+	fecha_operacion DATE NOT NULL,
+	id_turno INTEGER UNIQUE NOT NULL,
 	FOREIGN KEY (id_turno) REFERENCES turno(id_turno)
 );
 
 CREATE TABLE estudio(
 	id_estudio SERIAL PRIMARY KEY,
 	nombre_estudio VARCHAR(100),
-	fecha DATE NOT NULL,
+	fecha_estudio DATE NOT NULL,
 	id_turno INTEGER NOT NULL,
 	FOREIGN KEY (id_turno) REFERENCES turno(id_turno)
 );
 	
 CREATE TABLE medicamento(
 	id_medicamento SERIAL PRIMARY KEY,
-	nombre_medicamento VARCHAR(100),
-	id_turno INTEGER NOT NULL,
-	FOREIGN KEY (id_turno) REFERENCES turno(id_turno)
+	nombre_medicamento VARCHAR(100)
 );
 
 CREATE TABLE efecto_secundario(
@@ -100,7 +113,6 @@ CREATE TABLE efecto_secundario(
 CREATE TABLE turno_medicamento (
 	id_turno INTEGER,
 	id_medicamento INTEGER,
-	-- dosis VARCHAR(20) NOT NULL, --necesito poder aclarar gramos, miligramos, etc
 	FOREIGN KEY (id_turno) REFERENCES turno(id_turno),
 	FOREIGN KEY (id_medicamento) REFERENCES medicamento(id_medicamento),
 	PRIMARY KEY (id_turno, id_medicamento)
@@ -115,12 +127,12 @@ CREATE TABLE medicamento_efecto (
 );
 
 CREATE TABLE medico_operacion(
-	legajo VARCHAR(20),
+	cuil CHAR(11),
 	id_operacion INTEGER NOT NULL,
 	rol_medico VARCHAR(20) CHECK (rol_medico in ('cirujano principal', 'ayudante de cirugia', 'instrumentista','anestesiólogo')) NOT NULL,
-	FOREIGN KEY (legajo) REFERENCES medico(legajo),
+	FOREIGN KEY (cuil) REFERENCES medico(cuil),
 	FOREIGN KEY (id_operacion) REFERENCES operacion(id_operacion),
-	PRIMARY KEY (legajo, id_operacion)
+	PRIMARY KEY (cuil, id_operacion)
 );
 -------------------------------------------------------------------------------
 
@@ -131,14 +143,14 @@ DECLARE
 	fecha_nac_pac DATE;
 BEGIN
     SELECT fecha_nacimiento
-    INTO fecha_nac_med -- tomo el resultado del SELECT y lo guardo en una variable
-    FROM medico med
-    WHERE med.legajo = NEW.legajo;
+    INTO fecha_nac_med
+    FROM persona per
+    WHERE per.cuil = NEW.cuil_medico;
 	   
 	SELECT fecha_nacimiento
-    INTO fecha_nac_pac-- tomo el resultado del SELECT y lo guardo en una variable
-    FROM paciente pac
-    WHERE pac.id_paciente = NEW.id_paciente;
+    INTO fecha_nac_pac
+    FROM persona per
+    WHERE per.cuil = NEW.cuil_paciente;
 
     IF NEW.fecha < fecha_nac_med THEN
         RAISE EXCEPTION 'El turno no puede ser anterior al nacimiento del médico';
@@ -157,7 +169,55 @@ FOR EACH ROW
 EXECUTE FUNCTION validar_fecha_turno();
 
 -------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION validar_medicos_mayores()
+RETURNS TRIGGER AS $$
+DECLARE
+    fecha_nac_med DATE;
+BEGIN
+    SELECT fecha_nacimiento
+    INTO fecha_nac_med
+    FROM persona per
+    WHERE per.cuil = NEW.cuil_medico;
 
+    IF fecha_nac_med > CURRENT_DATE - INTERVAL '18 years' THEN
+        RAISE EXCEPTION 'El médico debe ser mayor de edad';
+
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_validar_medicos_mayores
+BEFORE INSERT OR UPDATE ON medico
+FOR EACH ROW
+EXECUTE FUNCTION validar_medicos_mayores();
+-------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION validar_operacion_mismo()
+RETURNS TRIGGER AS $$
+DECLARE
+	id_pac CHAR(11);
+BEGIN	
+	SELECT tu.cuil_paciente
+	INTO id_pac
+	FROM operacion op
+	JOIN turno tu ON op.id_turno = tu.id_turno
+	WHERE op.id_operacion = NEW.id_operacion;
+
+	IF id_pac = NEW.cuil THEN
+		RAISE EXCEPTION 'Un medico no puede operarse a si mismo';
+	END IF;
+	
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_operacion_mismo
+BEFORE INSERT OR UPDATE ON medico_operacion
+FOR EACH ROW
+EXECUTE FUNCTION validar_operacion_mismo();
+-------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION validar_cirujano_principal()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -193,17 +253,17 @@ EXECUTE FUNCTION validar_cirujano_principal();
 
 -------------------------------------------------------------------------------
 
-CREATE OR REPLACE FUNCTION validar_fecha_post_turno()
+CREATE OR REPLACE FUNCTION validar_fecha_operacion_post_turno()
 RETURNS TRIGGER AS $$
 DECLARE
-    fecha_turno DATE;
+    fecha_t DATE;
 BEGIN
-    SELECT fecha
-    INTO fecha_turno -- tomo el resultado del SELECT y lo guardo en una variable
+    SELECT fecha_turno
+    INTO fecha_t -- tomo el resultado del SELECT y lo guardo en una variable
     FROM turno turno
     WHERE turno.id_turno = NEW.id_turno;
 
-    IF NEW.fecha < fecha_turno THEN
+    IF NEW.fecha_operacion < fecha_t THEN
         RAISE EXCEPTION 'La fecha no puede ser anterior al turno que la receto';
 	END IF;
     RETURN NEW;
@@ -213,21 +273,38 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_validar_operacion_post_turno
 BEFORE INSERT OR UPDATE ON operacion
 FOR EACH ROW
-EXECUTE FUNCTION validar_fecha_post_turno();
+EXECUTE FUNCTION validar_fecha_operacion_post_turno();
+-------------------------------------------------------------------------------
 
+CREATE OR REPLACE FUNCTION validar_fecha_estudio_post_turno()
+RETURNS TRIGGER AS $$
+DECLARE
+    fecha_t DATE;
+BEGIN
+    SELECT fecha_turno
+    INTO fecha_t -- tomo el resultado del SELECT y lo guardo en una variable
+    FROM turno turno
+    WHERE turno.id_turno = NEW.id_turno;
+
+    IF NEW.fecha_estudio< fecha_t THEN
+        RAISE EXCEPTION 'La fecha no puede ser anterior al turno que la receto';
+	END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_validar_estudio_post_turno
 BEFORE INSERT OR UPDATE ON estudio
 FOR EACH ROW
-EXECUTE FUNCTION validar_fecha_post_turno();
+EXECUTE FUNCTION validar_fecha_estudio_post_turno();
 -------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION validar_estado_turno()
 RETURNS TRIGGER AS $$
 BEGIN
 
-    IF NEW.estado = 'programado' AND (NEW.fecha < CURRENT_DATE OR (NEW.fecha = CURRENT_DATE AND NEW.hora < CURRENT_TIME)) THEN
+    IF NEW.estado = 'programado' AND (NEW.fecha_turno < CURRENT_DATE OR (NEW.fecha_turno = CURRENT_DATE AND NEW.hora_turno < CURRENT_TIME)) THEN
         RAISE EXCEPTION 'Un turno programado debe ser posterior a hoy';
 
-    ELSIF NEW.estado = 'realizado' AND (NEW.fecha > CURRENT_DATE OR (NEW.fecha = CURRENT_DATE AND NEW.hora > CURRENT_TIME)) THEN
+    ELSIF NEW.estado = 'realizado' AND (NEW.fecha > CURRENT_DATE OR (NEW.fecha_turno = CURRENT_DATE AND NEW.hora_turno > CURRENT_TIME)) THEN
         RAISE EXCEPTION 'Un turno realizado debe ser anterior a hoy';
     END IF;
 
@@ -251,9 +328,9 @@ BEGIN
     INTO conflicto
     FROM turno t
     WHERE t.numero_consultorio = NEW.numero_consultorio
-      AND t.fecha = NEW.fecha
+      AND t.fecha_turno = NEW.fecha_turno
       AND t.id_turno <> NEW.id_turno
-      AND (NEW.hora < (t.hora + INTERVAL '30 minutes') AND (NEW.hora + interval '30 minutes') > t.hora);
+      AND (NEW.hora_turno < (t.hora_turno + INTERVAL '30 minutes') AND (NEW.hora_turno + interval '30 minutes') > t.hora_turno);
 
     IF conflicto > 0 THEN
         RAISE EXCEPTION 'El consultorio ya está ocupado en ese horario';

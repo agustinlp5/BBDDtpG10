@@ -106,6 +106,7 @@ Entrega:
 - La supervisión tiene forma de arbol?. 
 - Si un turno es programado, su fecha es posterior a la actual, si es cancelado nada, si es realizado debe ser previa a la actual. X
 - Un medico solo tiene un rol en cada operación. (ya esta cumplida al no hacer que rol forme parte de la clave de medico_operacion). X
+- Un medico no puede operarse a si mismo. X
 
 ### Posibles funciones ventana
 

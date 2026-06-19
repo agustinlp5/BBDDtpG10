@@ -11,7 +11,7 @@ Trabajo práctico BBDD
 - Informe Restricciones.
 
 1.2:
-- Implementar Restricciones.
+- Implementar Restricciones. X
 
 1.3:
 - Poblar base.

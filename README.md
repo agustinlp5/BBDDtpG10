@@ -11,19 +11,23 @@ Trabajo práctico BBDD
 - Informe Restricciones.
 
 1.2:
+- Informe
 - Implementar Restricciones. X
 
 1.3:
+- Informe
 - Poblar base.
 - Validar consistencia.
 
 2.1:
-- 2 consultas de ventana:
+- Informe
+- 2 consultas de ventana: X
     - Descripción de la pregunta.
     - Justificación de usar ventana.
     - Informar resultado.
 
 2.2:
+- Informe
 - Funciones estadisticas:
     - C1.
     - C2.
@@ -37,6 +41,7 @@ Trabajo práctico BBDD
 - Comparar y explicar diferencias.
 
 3.1:
+- Informe
 - 3 procesos con MapReduce:
     - Describir pregunta.
     - Explicitar Map.
@@ -44,6 +49,7 @@ Trabajo práctico BBDD
     - Mostrar resultados.
 
 4.1.1: 
+- Informe
 - 3 tipos de datos que almacenar como clave-valor simples/hashes:
     - Código de carga de datos.
     - Consultas de valores específicos.
@@ -51,6 +57,7 @@ Trabajo práctico BBDD
     - Explicar por qué Redis es mejor que PostgreSQL en este caso.
 
 4.1.2:
+- Informe
 - Escenario donde lista de Redis es adecuada:
     - Creación y carga de datos.
     - Consultas .
@@ -58,19 +65,23 @@ Trabajo práctico BBDD
     - Simulación del flujo completo.
 
 4.1.3:
+- Informe
 - 3 claves con TTL distinto:
     - Justificar tiempo elegido.
     - Verificador de tiempo restante.
     - Mensajes que simulen el sistema.
 
 4.2:
+- Informe
 - Elegir mongo en la nube o en Docker y documentar pasos de config, string de conexión, y problemas.
 
 4.2.1:
+- Informe
 - Dos colecciones de docs:
     - Decisiones de diseño (preguntas).
 
 4.2.2:
+- Informe
 - Insercion de documentos.
 - Consultas con filtros en diferentes campos.
 - Proyecciones.
@@ -78,6 +89,7 @@ Trabajo práctico BBDD
 - Eliminación condicional.
 
 4.2.3:
+- Informe
 - 2 pipelines de agregacion:
     - Explicar cada etapa (al menos 3) y que transformación realiza.
 - Reflexion comparativa PostgreSQL, SparkSQL y MongoDB
@@ -89,7 +101,7 @@ Entrega:
 
 - El genero de los pacientes es el asignado al nacer.
 - Cada médico trabaja en una única especialidad en particular (por más de que pueda tener más de una).
-- Solo se atienden pacientes argentinos (con dni).
+- Solo se atienden pacientes que tengan CUIL.
 - Habría que agregar más?
 
 
@@ -107,6 +119,7 @@ Entrega:
 - Si un turno es programado, su fecha es posterior a la actual, si es cancelado nada, si es realizado debe ser previa a la actual. X
 - Un medico solo tiene un rol en cada operación. (ya esta cumplida al no hacer que rol forme parte de la clave de medico_operacion). X
 - Un medico no puede operarse a si mismo. X
+- Un medico o paciente no puede tener dos turnos al mismo tiempo. X
 
 ### Posibles funciones ventana
 
@@ -125,5 +138,6 @@ Podría agregar el de primer y último turno de cada paciente.
 
 ### Posibles TTL:
 
-- Sesión de paciente en la página web del hospital
+- Sesión de una persona en la página web del hospital
 - Sesión del médico en la computadora de un consultorio
+- Reserva temporal de un turno:

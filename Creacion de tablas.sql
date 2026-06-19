@@ -318,7 +318,7 @@ FOR EACH ROW
 EXECUTE FUNCTION validar_estado_turno();
 -------------------------------------------------------------------------------
 
-CREATE OR REPLACE FUNCTION validar_solapamiento()
+CREATE OR REPLACE FUNCTION validar_solapamiento_consultorio()
 RETURNS TRIGGER AS $$
 DECLARE
     conflicto INT;
@@ -330,7 +330,8 @@ BEGIN
     WHERE t.numero_consultorio = NEW.numero_consultorio
       AND t.fecha_turno = NEW.fecha_turno
       AND t.id_turno <> NEW.id_turno
-      AND (NEW.hora_turno < (t.hora_turno + INTERVAL '30 minutes') AND (NEW.hora_turno + interval '30 minutes') > t.hora_turno);
+	  AND t.estado <> 'cancelado'	
+      AND (NEW.hora_turno < (t.hora_turno + INTERVAL '30 minutes') AND (NEW.hora_turno + INTERVAL '30 minutes') > t.hora_turno);
 
     IF conflicto > 0 THEN
         RAISE EXCEPTION 'El consultorio ya está ocupado en ese horario';
@@ -340,7 +341,38 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_no_solapamiento
+CREATE TRIGGER trg_no_solapamiento_consultorio
 BEFORE INSERT OR UPDATE ON turno
 FOR EACH ROW
-EXECUTE FUNCTION validar_solapamiento();
+EXECUTE FUNCTION validar_solapamiento_consultorio();
+
+-------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION validar_solapamiento_persona()
+RETURNS TRIGGER AS $$
+DECLARE
+    conflicto INT;
+BEGIN
+
+    SELECT COUNT(*)
+    INTO conflicto
+    FROM turno t
+    WHERE (t.cuil_paciente = NEW.cuil_paciente OR t.cuil_medico = NEW.cuil_medico)
+      AND t.fecha_turno = NEW.fecha_turno
+      AND t.id_turno <> NEW.id_turno
+	  AND t.estado <> 'cancelado'
+      AND (NEW.hora_turno < (t.hora_turno + INTERVAL '30 minutes') AND (NEW.hora_turno + INTERVAL '30 minutes') > t.hora_turno);
+
+    IF conflicto > 0 THEN
+        RAISE EXCEPTION 'El medico o el paciente ya tienen un turno en ese horario';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_no_solapamiento_persona
+BEFORE INSERT OR UPDATE ON turno
+FOR EACH ROW
+EXECUTE FUNCTION validar_solapamiento_persona();
+

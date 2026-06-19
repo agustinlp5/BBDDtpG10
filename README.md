@@ -66,9 +66,9 @@ Trabajo práctico BBDD
 
 4.1.3:
 - Informe
-- 3 claves con TTL distinto:
-    - Justificar tiempo elegido.
-    - Verificador de tiempo restante.
+- 3 claves con TTL distinto: X
+    - Justificar tiempo elegido. X
+    - Verificador de tiempo restante. 
     - Mensajes que simulen el sistema.
 
 4.2:
@@ -136,8 +136,18 @@ Ya tenía hecho esto:
 
 Podría agregar el de primer y último turno de cada paciente.
 
+### Clave valor / hashes REDIS:
+
+- HASH perfil de un paciente: clave es cuil, datos(genero, nombre, apellido, riesgos?) en un hash
+- Estado actual de un turno (como el estado puede cambiar entre programado y cancelado, un medico o paciente puede querer saber el estado de su turno multiples veces)
+- la sesion del usuario en la pagina web... pero desp lo ponemos en ttl
+
+### Colas de REDIS:
+
+- Cada consultorio tiene una lista de los pacientes que tienen un turno en ese consultorio, las lista contiene los cuils de forma que se hace un pop del primer elemento de la lista y luego se obtiene la informacion de ese paciente, y asi el médico por ejemplo puede llamar al siguiente paciente.
+
 ### Posibles TTL:
 
-- Sesión de una persona en la página web del hospital
-- Sesión del médico en la computadora de un consultorio
-- Reserva temporal de un turno:
+- Sesión de una persona en la página web del hospital (30 minutos con renovación por actividad, será posible?)
+- Sesión del médico en la computadora de un consultorio (30 minutos o 15 minutos con renovación por actividad)
+- Reserva temporal de un turno (5-10 minutos)

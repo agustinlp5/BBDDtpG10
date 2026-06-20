@@ -4,11 +4,11 @@ Trabajo práctico BBDD
 ## To Do List:
 
 1.1:
-- Agregar lo que haya que agregar al DER para hacer el resto del tp
+- Agregar lo que haya que agregar al DER para hacer el resto del tp (tal vez no hace falta)
+
 - Informe DER y consigna.
-- Completar decisiones de diseño.
-- Informe decisiones de diseño.
-- Informe Restricciones.
+- Informe decisiones de diseño. X
+- Informe Restricciones. X
 
 1.2:
 - Informe
@@ -19,12 +19,8 @@ Trabajo práctico BBDD
 - Poblar base.
 - Validar consistencia.
 
-2.1:
-- Informe
-- 2 consultas de ventana: X
-    - Descripción de la pregunta.
-    - Justificación de usar ventana.
-    - Informar resultado.
+2.1: X
+- ventanas: tal vez pusimos consultas de más? (no c si la 3 aporta mucho)
 
 2.2:
 - Informe
@@ -32,7 +28,7 @@ Trabajo práctico BBDD
     - C1.
     - C2.
     - C3.
-    - Consulta con CTE.
+    - Consulta con CTE. X
 
 2.3:
 - Hacer EXPLAIN / EXPLAIN ANALYZE a una consulta *COMPLEJA*.
@@ -97,13 +93,6 @@ Trabajo práctico BBDD
 Entrega:
 - Archivo README para reproducir el entorno
 
-### Decisiones de diseño:
-
-- El genero de los pacientes es el asignado al nacer.
-- Cada médico trabaja en una única especialidad en particular (por más de que pueda tener más de una).
-- Solo se atienden pacientes que tengan CUIL.
-- Habría que agregar más?
-
 
 ### Restricciones (pendientes):
 
@@ -120,21 +109,6 @@ Entrega:
 - Un medico solo tiene un rol en cada operación. (ya esta cumplida al no hacer que rol forme parte de la clave de medico_operacion). X
 - Un medico no puede operarse a si mismo. X
 - Un medico o paciente no puede tener dos turnos al mismo tiempo. X
-
-### Posibles funciones ventana
-
-- Ranking de médicos que hicieron más operaciones para darle un bonus (parece fácil de hacer con group by).
-- De cada paciente se quiere saber el primer y útlimo turno.
-- Ranking de quienes fueron los clientes que más costos tuvieron en sus consultas.
-- Cuantos dias pasaron desde la ultima consulta del cliente. X
-
-Ya tenía hecho esto:
-
-- Para cada turno que tuvo un paciente, mostrar la fecha de su turno anterior y los días que hubo de diferencia.
-- Ranking de médicos más solicitados de cada especialidad, según la cantidad de turnos atendidos.
-- Ranking de médicos que recetaron la mayor cantidad de medicamentos con efectos secundarios de gravedad alta.
-
-Podría agregar el de primer y último turno de cada paciente.
 
 ### Clave valor / hashes REDIS:
 

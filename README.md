@@ -11,19 +11,23 @@ Trabajo práctico BBDD
 - Informe Restricciones.
 
 1.2:
-- Implementar Restricciones.
+- Informe
+- Implementar Restricciones. X
 
 1.3:
+- Informe
 - Poblar base.
 - Validar consistencia.
 
 2.1:
-- 2 consultas de ventana:
+- Informe
+- 2 consultas de ventana: X
     - Descripción de la pregunta.
     - Justificación de usar ventana.
     - Informar resultado.
 
 2.2:
+- Informe
 - Funciones estadisticas:
     - C1.
     - C2.
@@ -37,6 +41,7 @@ Trabajo práctico BBDD
 - Comparar y explicar diferencias.
 
 3.1:
+- Informe
 - 3 procesos con MapReduce:
     - Describir pregunta.
     - Explicitar Map.
@@ -44,6 +49,7 @@ Trabajo práctico BBDD
     - Mostrar resultados.
 
 4.1.1: 
+- Informe
 - 3 tipos de datos que almacenar como clave-valor simples/hashes:
     - Código de carga de datos.
     - Consultas de valores específicos.
@@ -51,6 +57,7 @@ Trabajo práctico BBDD
     - Explicar por qué Redis es mejor que PostgreSQL en este caso.
 
 4.1.2:
+- Informe
 - Escenario donde lista de Redis es adecuada:
     - Creación y carga de datos.
     - Consultas .
@@ -58,19 +65,23 @@ Trabajo práctico BBDD
     - Simulación del flujo completo.
 
 4.1.3:
-- 3 claves con TTL distinto:
-    - Justificar tiempo elegido.
-    - Verificador de tiempo restante.
+- Informe
+- 3 claves con TTL distinto: X
+    - Justificar tiempo elegido. X
+    - Verificador de tiempo restante. 
     - Mensajes que simulen el sistema.
 
 4.2:
+- Informe
 - Elegir mongo en la nube o en Docker y documentar pasos de config, string de conexión, y problemas.
 
 4.2.1:
+- Informe
 - Dos colecciones de docs:
     - Decisiones de diseño (preguntas).
 
 4.2.2:
+- Informe
 - Insercion de documentos.
 - Consultas con filtros en diferentes campos.
 - Proyecciones.
@@ -78,6 +89,7 @@ Trabajo práctico BBDD
 - Eliminación condicional.
 
 4.2.3:
+- Informe
 - 2 pipelines de agregacion:
     - Explicar cada etapa (al menos 3) y que transformación realiza.
 - Reflexion comparativa PostgreSQL, SparkSQL y MongoDB
@@ -89,20 +101,25 @@ Entrega:
 
 - El genero de los pacientes es el asignado al nacer.
 - Cada médico trabaja en una única especialidad en particular (por más de que pueda tener más de una).
-- Solo se atienden pacientes argentinos (con dni).
+- Solo se atienden pacientes que tengan CUIL.
 - Habría que agregar más?
 
 
 ### Restricciones (pendientes):
 
-- No puede utilizarse un consultorio para dos turnos al mismo tiempo (se asume que cada turno dura 30 minutos).
-- La fecha de nacimiento de un paciente no puede superar la fecha actual.
-- Los médicos tienen una fecha de nacimiento tal que tienen más de 18 años
-- Un paciente o un médico no pueden tener un turno antes de nacer.
-- La supervisión tiene forma de arbol.
-- Todas las operaciones deben tener un único "cirujano principal".
-- Los turnos y operaciones deben ocurrir después que el turno que lo solicitó.
-- Los sueldos de los médicos y los costos de la consulta no pueden ser negativos
+- No puede utilizarse un consultorio para dos turnos al mismo tiempo (se asume que cada turno dura 30 minutos). X
+- La fecha de nacimiento de un paciente no puede superar la fecha actual. X  
+- Los médicos tienen una fecha de nacimiento tal que tienen más de 18 años. X
+- Un paciente o un médico no pueden tener un turno antes de nacer. X
+- Todas las operaciones deben tener un único "cirujano principal". X
+- Los turnos y operaciones deben ocurrir después que el turno que lo solicitó. X
+- Los sueldos de los médicos y los costos de la consulta no pueden ser negativos. X
+- Un medico no puede supervisarse a si mismo. X
+- La supervisión tiene forma de arbol?. 
+- Si un turno es programado, su fecha es posterior a la actual, si es cancelado nada, si es realizado debe ser previa a la actual. X
+- Un medico solo tiene un rol en cada operación. (ya esta cumplida al no hacer que rol forme parte de la clave de medico_operacion). X
+- Un medico no puede operarse a si mismo. X
+- Un medico o paciente no puede tener dos turnos al mismo tiempo. X
 
 ### Posibles funciones ventana
 
@@ -119,7 +136,18 @@ Ya tenía hecho esto:
 
 Podría agregar el de primer y último turno de cada paciente.
 
+### Clave valor / hashes REDIS:
+
+- HASH perfil de un paciente: clave es cuil, datos(genero, nombre, apellido, riesgos?) en un hash
+- Estado actual de un turno (como el estado puede cambiar entre programado y cancelado, un medico o paciente puede querer saber el estado de su turno multiples veces)
+- la sesion del usuario en la pagina web... pero desp lo ponemos en ttl
+
+### Colas de REDIS:
+
+- Cada consultorio tiene una lista de los pacientes que tienen un turno en ese consultorio, las lista contiene los cuils de forma que se hace un pop del primer elemento de la lista y luego se obtiene la informacion de ese paciente, y asi el médico por ejemplo puede llamar al siguiente paciente.
+
 ### Posibles TTL:
 
-- Sesión de paciente en la página web del hospital
-- Sesión del médico en la computadora de un consultorio
+- Sesión de una persona en la página web del hospital (30 minutos con renovación por actividad, será posible?)
+- Sesión del médico en la computadora de un consultorio (30 minutos o 15 minutos con renovación por actividad)
+- Reserva temporal de un turno (5-10 minutos)

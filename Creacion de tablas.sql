@@ -177,7 +177,7 @@ BEGIN
     SELECT fecha_nacimiento
     INTO fecha_nac_med
     FROM persona per
-    WHERE per.cuil = NEW.cuil_medico;
+    WHERE per.cuil = NEW.cuil;
 
     IF fecha_nac_med > CURRENT_DATE - INTERVAL '18 years' THEN
         RAISE EXCEPTION 'El médico debe ser mayor de edad';

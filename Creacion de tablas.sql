@@ -152,10 +152,10 @@ BEGIN
     FROM persona per
     WHERE per.cuil = NEW.cuil_paciente;
 
-    IF NEW.fecha < fecha_nac_med THEN
+    IF NEW.fecha_turno < fecha_nac_med THEN
         RAISE EXCEPTION 'El turno no puede ser anterior al nacimiento del médico';
 	
-	ELSIF NEW.fecha < fecha_nac_pac THEN
+	ELSIF NEW.fecha_turno < fecha_nac_pac THEN
 		RAISE EXCEPTION 'El turno no puede ser anterior al nacimiento del paciente';
     END IF;
 
@@ -304,7 +304,7 @@ BEGIN
     IF NEW.estado = 'programado' AND (NEW.fecha_turno < CURRENT_DATE OR (NEW.fecha_turno = CURRENT_DATE AND NEW.hora_turno < CURRENT_TIME)) THEN
         RAISE EXCEPTION 'Un turno programado debe ser posterior a hoy';
 
-    ELSIF NEW.estado = 'realizado' AND (NEW.fecha > CURRENT_DATE OR (NEW.fecha_turno = CURRENT_DATE AND NEW.hora_turno > CURRENT_TIME)) THEN
+    ELSIF NEW.estado = 'realizado' AND (NEW.fecha_turno > CURRENT_DATE OR (NEW.fecha_turno = CURRENT_DATE AND NEW.hora_turno > CURRENT_TIME)) THEN
         RAISE EXCEPTION 'Un turno realizado debe ser anterior a hoy';
     END IF;
 

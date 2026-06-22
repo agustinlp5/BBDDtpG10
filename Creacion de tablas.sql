@@ -79,7 +79,8 @@ CREATE TABLE turno (
 	numero_consultorio INTEGER NOT NULL,
 	FOREIGN KEY (cuil_paciente) REFERENCES paciente(cuil),
 	FOREIGN KEY (cuil_medico) REFERENCES medico(cuil),
-	FOREIGN KEY (numero_consultorio) REFERENCES consultorio(numero_consultorio)
+	FOREIGN KEY (numero_consultorio) REFERENCES consultorio(numero_consultorio),
+	CHECK (cuil_paciente <> cuil_medico)
 );
 
 CREATE TABLE operacion(

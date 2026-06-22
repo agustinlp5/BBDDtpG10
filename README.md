@@ -38,11 +38,12 @@ Trabajo práctico BBDD
 
 3.1:
 - Informe
-- 3 procesos con MapReduce:
-    - Describir pregunta.
-    - Explicitar Map.
-    - Explicitar Reduce.
+- 3 procesos con MapReduce: X
+    - Describir pregunta. X
+    - Explicitar Map. X
+    - Explicitar Reduce. X
     - Mostrar resultados.
+- explicar transformaciones lazy
 
 4.1.1: 
 - Informe
@@ -110,6 +111,8 @@ Entrega:
 - Un medico no puede operarse a si mismo. X
 - Un medico o paciente no puede tener dos turnos al mismo tiempo. X
 
+
+
 ### Clave valor / hashes REDIS:
 
 - HASH perfil de un paciente: clave es cuil, datos(genero, nombre, apellido, riesgos?) en un hash
@@ -125,3 +128,8 @@ Entrega:
 - Sesión de una persona en la página web del hospital (30 minutos con renovación por actividad, será posible?)
 - Sesión del médico en la computadora de un consultorio (30 minutos o 15 minutos con renovación por actividad)
 - Reserva temporal de un turno (5-10 minutos)
+
+
+### MONGO:
+
+- Como en los documentos quiero cosas opcionales, podría poner turnos, donde en el caso de turnos programados o cancelados, datos como el diagnostico son nulls (por lo que se pueden no poner) mientras que si aparecen en turnos ya realizados.

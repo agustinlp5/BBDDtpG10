@@ -37,7 +37,7 @@ Trabajo práctico BBDD
 - Comparar y explicar diferencias.
 
 3.1:
-- Informe
+- Informe X
 - 3 procesos con MapReduce: X
     - Describir pregunta. X
     - Explicitar Map. X
@@ -46,27 +46,27 @@ Trabajo práctico BBDD
 - explicar transformaciones lazy X
 
 4.1.1: 
-- Informe
-- 3 tipos de datos que almacenar como clave-valor simples/hashes:
-    - Código de carga de datos.
-    - Consultas de valores específicos.
-    - Actualizar y verificar un campo.
-    - Explicar por qué Redis es mejor que PostgreSQL en este caso.
+- Informe X
+- 3 tipos de datos que almacenar como clave-valor simples/hashes: 2/3
+    - Código de carga de datos. X
+    - Consultas de valores específicos. X
+    - Actualizar y verificar un campo. X
+    - Explicar por qué Redis es mejor que PostgreSQL en este caso. X
 
 4.1.2:
-- Informe
-- Escenario donde lista de Redis es adecuada:
-    - Creación y carga de datos.
-    - Consultas .
-    - Gestión (agregar, recuperar y eliminar datos).
-    - Simulación del flujo completo.
+- Informe X
+- Escenario donde lista de Redis es adecuada: X
+    - Creación y carga de datos. X
+    - Consultas. X
+    - Gestión (agregar, recuperar y eliminar datos). X
+    - Simulación del flujo completo. X
 
 4.1.3:
-- Informe
+- Informe X
 - 3 claves con TTL distinto: X
     - Justificar tiempo elegido. X
-    - Verificador de tiempo restante. 
-    - Mensajes que simulen el sistema.
+    - Verificador de tiempo restante. X
+    - Mensajes que simulen el sistema. X 
 
 4.2:
 - Informe
@@ -125,9 +125,9 @@ Entrega:
 
 ### Posibles TTL:
 
-- Sesión de una persona en la página web del hospital (30 minutos con renovación por actividad, será posible?)
-- Sesión del médico en la computadora de un consultorio (30 minutos o 15 minutos con renovación por actividad)
-- Reserva temporal de un turno (5-10 minutos)
+- Sesión de una persona en la página web del hospital  X
+- Sesión del médico en la computadora de un consultorio X
+- Reserva temporal de un turno (5-10 minutos) X
 
 
 ### MONGO:

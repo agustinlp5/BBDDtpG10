@@ -43,7 +43,7 @@ Trabajo práctico BBDD
     - Explicitar Map. X
     - Explicitar Reduce. X
     - Mostrar resultados.
-- explicar transformaciones lazy
+- explicar transformaciones lazy X
 
 4.1.1: 
 - Informe

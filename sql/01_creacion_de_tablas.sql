@@ -312,11 +312,12 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
+/*
 CREATE TRIGGER validar_estado_turno
 BEFORE INSERT OR UPDATE ON turno
 FOR EACH ROW
 EXECUTE FUNCTION validar_estado_turno();
+*/
 -------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION validar_solapamiento_consultorio()

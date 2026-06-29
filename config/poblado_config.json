@@ -1,6 +1,7 @@
 {
   "seed": 20260624,
   "locale": "es_AR",
+  "reference_date": "2026-06-24",
   "output_sql": "sql/02_populado_datos.sql",
   "output_validations_sql": "sql/03_validaciones_populado.sql",
   "chunk_size": 800,

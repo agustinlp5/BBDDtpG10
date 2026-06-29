@@ -974,7 +974,8 @@ def write_population_sql(
         out.write("COMMIT;\n")
 
 
-def write_validations_sql(output_path: Path) -> None:
+def write_validations_sql(output_path: Path, reference_date: date) -> None:
+    reference_date_sql = reference_date.isoformat()
     output_path.write_text(
         """-- Validaciones del poblado de datos
 -- Ejecutar luego de sql/02_populado_datos.sql
@@ -1060,10 +1061,14 @@ GROUP BY m.especialidad
 ORDER BY cantidad_turnos DESC;
 
 -- 8. Validacion: programados futuros y realizados pasados. Debe devolver 0.
+WITH params AS (
+    SELECT DATE '{reference_date_sql}' AS reference_date
+)
 SELECT COUNT(*) AS turnos_con_estado_temporal_invalido
-FROM turno
-WHERE (estado = 'programado' AND (fecha_turno < CURRENT_DATE OR (fecha_turno = CURRENT_DATE AND hora_turno < CURRENT_TIME)))
-   OR (estado = 'realizado' AND (fecha_turno > CURRENT_DATE OR (fecha_turno = CURRENT_DATE AND hora_turno > CURRENT_TIME)));
+FROM turno t
+CROSS JOIN params p
+WHERE (t.estado = 'programado' AND t.fecha_turno <= p.reference_date)
+   OR (t.estado = 'realizado' AND t.fecha_turno >= p.reference_date);
 
 -- 9. Validacion: turnos antes del nacimiento de medico o paciente. Debe devolver 0.
 SELECT COUNT(*) AS turnos_antes_de_nacimiento
@@ -1116,10 +1121,14 @@ GROUP BY o.id_operacion
 HAVING COUNT(*) FILTER (WHERE mo.rol_medico = 'cirujano principal') <> 1;
 
 -- 14. Validacion: medicos mayores de edad. Debe devolver 0.
+WITH params AS (
+    SELECT DATE '{reference_date_sql}' AS reference_date
+)
 SELECT COUNT(*) AS medicos_menores_de_edad
 FROM medico m
 JOIN persona p ON p.cuil = m.cuil
-WHERE p.fecha_nacimiento > CURRENT_DATE - INTERVAL '18 years';
+CROSS JOIN params prm
+WHERE p.fecha_nacimiento > prm.reference_date - INTERVAL '18 years';
 
 -- 15. Distribucion de riesgos
 SELECT
@@ -1142,7 +1151,7 @@ ORDER BY cantidad_pacientes DESC;
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Genera script SQL de poblado para el TP de IBD.")
     parser.add_argument("--config", type=Path, default=None, help="Ruta a config JSON. Default: configuracion interna.")
-    parser.add_argument("--today", type=str, default=None, help="Fecha base YYYY-MM-DD. Default: fecha actual.")
+    parser.add_argument("--reference-date", "--today", dest="reference_date", type=str, default=None, help="Fecha logica base YYYY-MM-DD. Si no se informa, usa config.reference_date. Como ultimo recurso usa la fecha actual.")    
     args = parser.parse_args(argv)
 
     cfg = load_config(args.config)
@@ -1152,7 +1161,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     fake = Faker(cfg.get("locale", "es_AR"))
     Faker.seed(seed)
 
-    today = date.fromisoformat(args.today) if args.today else date.today()
+    reference_date_str = args.reference_date or cfg.get("reference_date")
+
+    if reference_date_str:
+        today = date.fromisoformat(reference_date_str)
+    else:
+        today = date.today()
+
+    cfg["reference_date"] = today.isoformat()
 
     output_sql = Path(cfg["output_sql"])
     output_validations = Path(cfg["output_validations_sql"])
@@ -1171,7 +1187,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     write_population_sql(cfg, personas, medicos, pacientes, turnos, operaciones, today, output_sql)
 
     print(f"Escribiendo {output_validations}...")
-    write_validations_sql(output_validations)
+    write_validations_sql(output_validations, today)
 
     print("Listo.")
     print("Resumen:")

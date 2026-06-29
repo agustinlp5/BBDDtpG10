@@ -64,7 +64,7 @@ CREATE TABLE paciente_riesgo(
 CREATE TABLE consultorio (
 	numero_consultorio INTEGER PRIMARY KEY,
 	piso INTEGER,
-	ala VARCHAR(5) CHECK (ala IN ('este','centro','oeste'))
+	ala VARCHAR(6) CHECK (ala IN ('este','centro','oeste'))
 );
 
 CREATE TABLE turno (

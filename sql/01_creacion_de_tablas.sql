@@ -14,14 +14,20 @@ DROP TABLE IF EXISTS turno_medicamento CASCADE;
 DROP TABLE IF EXISTS medicamento_efecto CASCADE;
 DROP TABLE IF EXISTS medico_operacion CASCADE;
 
-
+CREATE OR REPLACE FUNCTION fecha_actual()
+RETURNS DATE AS $$
+BEGIN
+    RETURN DATE '2026-06-24';
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+	
 CREATE TABLE persona (
 	cuil CHAR(11) PRIMARY KEY,
 	nombre VARCHAR(100) NOT NULL,
 	apellido VARCHAR(100) NOT NULL,
 	mail VARCHAR(100),
 	telefono VARCHAR(20),
-	fecha_nacimiento DATE CHECK (fecha_nacimiento <= CURRENT_DATE)
+	fecha_nacimiento DATE CHECK (fecha_nacimiento <= fecha_actual())
 	);
 
 CREATE TABLE medico (
@@ -180,7 +186,7 @@ BEGIN
     FROM persona per
     WHERE per.cuil = NEW.cuil;
 
-    IF fecha_nac_med > CURRENT_DATE - INTERVAL '18 years' THEN
+    IF fecha_nac_med > fecha_actual() - INTERVAL '18 years' THEN
         RAISE EXCEPTION 'El médico debe ser mayor de edad';
 
     END IF;
@@ -302,22 +308,22 @@ CREATE OR REPLACE FUNCTION validar_estado_turno()
 RETURNS TRIGGER AS $$
 BEGIN
 
-    IF NEW.estado = 'programado' AND (NEW.fecha_turno < CURRENT_DATE OR (NEW.fecha_turno = CURRENT_DATE AND NEW.hora_turno < CURRENT_TIME)) THEN
+    IF NEW.estado = 'programado' AND (NEW.fecha_turno < fecha_actual() OR (NEW.fecha_turno = fecha_actual() AND NEW.hora_turno < CURRENT_TIME)) THEN
         RAISE EXCEPTION 'Un turno programado debe ser posterior a hoy';
 
-    ELSIF NEW.estado = 'realizado' AND (NEW.fecha_turno > CURRENT_DATE OR (NEW.fecha_turno = CURRENT_DATE AND NEW.hora_turno > CURRENT_TIME)) THEN
+    ELSIF NEW.estado = 'realizado' AND (NEW.fecha_turno > fecha_actual() OR (NEW.fecha_turno = fecha_actual() AND NEW.hora_turno > CURRENT_TIME)) THEN
         RAISE EXCEPTION 'Un turno realizado debe ser anterior a hoy';
     END IF;
 
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-/*
+
 CREATE TRIGGER validar_estado_turno
 BEFORE INSERT OR UPDATE ON turno
 FOR EACH ROW
 EXECUTE FUNCTION validar_estado_turno();
-*/
+
 -------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION validar_solapamiento_consultorio()

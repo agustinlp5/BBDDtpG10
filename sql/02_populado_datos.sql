@@ -1,5 +1,5 @@
 -- Script generado automaticamente por scripts/generar_poblado.py
--- Fecha de generacion: 2026-06-29T13:16:15
+-- Fecha de generacion: 2026-06-29T13:17:42
 -- Fecha logica de referencia: 2026-06-24
 -- Ejecutar despues de sql/01_creacion_de_tablas.sql
 

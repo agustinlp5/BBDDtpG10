@@ -1,5 +1,0 @@
-jupyterlab
-ipykernel
-pandas
-psycopg2-binary
-SQLAlchemy

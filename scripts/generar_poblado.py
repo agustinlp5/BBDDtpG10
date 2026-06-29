@@ -13,18 +13,18 @@ import argparse
 import random
 import sys
 from pathlib import Path
-from typing import Sequence
+from typing import Sequence, Any
+import json
+from datetime import date
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-try:
-    from faker import Faker
-except ImportError as exc:  # pragma: no cover
-    raise SystemExit("Falta instalar Faker. Ejecutar: pip install -r requirements.txt") from exc
+DEFAULT_CONFIG_PATH = ROOT_DIR / "config" / "default_config.json"
 
-from poblado.config import load_config, resolve_reference_date
+from faker import Faker
+
 from poblado.generator import generate_operaciones, generate_personas_medicos_pacientes
 from poblado.scheduler import generate_turnos
 from poblado.sql_writer import write_population_sql
@@ -32,21 +32,22 @@ from poblado.utils import ensure_dirs
 from poblado.validation_writer import write_validations_sql
 
 
+def load_config(path: Path | None = None) -> dict[str, Any]:
+    """Carga la configuracion desde un archivo JSON."""
+    config_path = path or DEFAULT_CONFIG_PATH
+
+    with config_path.open("r", encoding="utf-8") as f:
+        cfg = json.load(f)
+
+    return cfg
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Genera script SQL de poblado para el TP de IBD.")
-    parser.add_argument("--config", type=Path, default=None, help="Ruta a config JSON. Default: configuracion interna.")
-    parser.add_argument(
-        "--reference-date",
-        "--today",
-        dest="reference_date",
-        type=str,
-        default=None,
-        help="Fecha logica base YYYY-MM-DD. Prioridad: CLI > config.reference_date > fecha actual.",
-    )
+    parser.add_argument("--config", type=Path, default=None, help="Ruta a config JSON. Default: config/default_config.json.")
+
     args = parser.parse_args(argv)
 
     cfg = load_config(args.config)
-    reference_date = resolve_reference_date(cfg, args.reference_date)
 
     seed = int(cfg["seed"])
     random.seed(seed)
@@ -58,7 +59,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     output_validations = Path(cfg["output_validations_sql"])
     ensure_dirs(output_sql, output_validations)
 
-    print(f"Fecha logica de referencia: {reference_date.isoformat()}")
+    reference_date = date.fromisoformat(cfg["reference_date"])
+
+    print(f"Fecha logica de referencia: {reference_date}")
 
     print("Generando personas, medicos y pacientes...")
     personas, medicos, pacientes = generate_personas_medicos_pacientes(fake, cfg, reference_date)

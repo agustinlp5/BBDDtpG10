@@ -4,18 +4,13 @@ import random
 from datetime import date, timedelta
 from decimal import Decimal
 from typing import Any
+from faker import Faker
 
-try:
-    from faker import Faker
-except ImportError as exc:  # pragma: no cover
-    raise SystemExit("Falta instalar Faker. Ejecutar: pip install -r requirements.txt") from exc
 
 from .constants import (
     ESPECIALIDADES,
     ESPECIALIDADES_QUIRURGICAS,
     ESTUDIOS_BASE,
-    MEDICAMENTOS_BASE,
-    OBRAS_SOCIALES_BASE,
     OPERACIONES_BASE,
     RIESGOS,
     ROLES_MEDICOS,
@@ -25,7 +20,6 @@ from .utils import (
     decimal_money,
     generate_unique_cuil,
     phone_argentina,
-    random_date_between,
     safe_email,
     weighted_choice,
     years_ago,
@@ -47,7 +41,7 @@ def generate_personas_medicos_pacientes(
     medicos: list[Medico] = []
     pacientes: list[Paciente] = []
 
-    # Medicos: edades 28-70 para cumplir holgadamente mayoria de edad.
+    
     medico_cuils: list[str] = []
     for idx in range(1, n_medicos + 1):
         nombre = fake.first_name()
@@ -70,13 +64,13 @@ def generate_personas_medicos_pacientes(
     for idx, cuil in enumerate(medico_cuils, start=1):
         supervisor = None if idx <= senior_count else random.choice(medico_cuils[: max(1, idx - 1)])
         especialidad = random.choice(ESPECIALIDADES)
-        base_salary = decimal_money(900_000, 3_500_000)
+        salary = decimal_money(900_000, 3_500_000)
         if especialidad in ESPECIALIDADES_QUIRURGICAS:
-            base_salary += Decimal(random.randint(200_000, 800_000))
+            salary += decimal_money(200_000, 800_000)
         medicos.append(
             Medico(
                 cuil=cuil,
-                salario=base_salary.quantize(Decimal("0.01")),
+                salario=salary,
                 cuil_supervisor=supervisor,
                 especialidad=especialidad,
             )

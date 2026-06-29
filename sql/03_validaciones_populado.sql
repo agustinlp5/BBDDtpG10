@@ -82,10 +82,14 @@ GROUP BY m.especialidad
 ORDER BY cantidad_turnos DESC;
 
 -- 8. Validacion: programados futuros y realizados pasados. Debe devolver 0.
+WITH params AS (
+    SELECT DATE '2026-06-24' AS reference_date
+)
 SELECT COUNT(*) AS turnos_con_estado_temporal_invalido
-FROM turno
-WHERE (estado = 'programado' AND (fecha_turno < CURRENT_DATE OR (fecha_turno = CURRENT_DATE AND hora_turno < CURRENT_TIME)))
-   OR (estado = 'realizado' AND (fecha_turno > CURRENT_DATE OR (fecha_turno = CURRENT_DATE AND hora_turno > CURRENT_TIME)));
+FROM turno t
+CROSS JOIN params p
+WHERE (t.estado = 'programado' AND t.fecha_turno <= p.reference_date)
+   OR (t.estado = 'realizado' AND t.fecha_turno >= p.reference_date);
 
 -- 9. Validacion: turnos antes del nacimiento de medico o paciente. Debe devolver 0.
 SELECT COUNT(*) AS turnos_antes_de_nacimiento
@@ -138,10 +142,14 @@ GROUP BY o.id_operacion
 HAVING COUNT(*) FILTER (WHERE mo.rol_medico = 'cirujano principal') <> 1;
 
 -- 14. Validacion: medicos mayores de edad. Debe devolver 0.
+WITH params AS (
+    SELECT DATE '2026-06-24' AS reference_date
+)
 SELECT COUNT(*) AS medicos_menores_de_edad
 FROM medico m
 JOIN persona p ON p.cuil = m.cuil
-WHERE p.fecha_nacimiento > CURRENT_DATE - INTERVAL '18 years';
+CROSS JOIN params prm
+WHERE p.fecha_nacimiento > prm.reference_date - INTERVAL '18 years';
 
 -- 15. Distribucion de riesgos
 SELECT
